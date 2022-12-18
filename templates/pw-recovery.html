@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Herstel wachtwoord{% endblock %}
+
+{% block body %}
+    <div class="container">
+          {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul class=flashes>
+        {% for message in messages %}
+        <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+      <div class="page-header">
+        <h1>Nieuw wachtwoord aanvragen</h1>
+      </div>
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="well bs-component">
+              <form class="form-horizontal" method="POST" action="{{ url_for('pw_recovery') }}">
+                <fieldset>
+                  <div class="form-group">
+                    <label for="inputName" class="col-lg-10 control-label">Het e-mailadres waarmee je je hebt aangemeld</label>
+                    <div class="col-lg-10">
+                      <input type="text" class="form-control {{ fv[0][0] }}" name="email" id="email">
+                      <div class="invalid-feedback">
+                        <div>{{ fv[0][1] }}</div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <div class="col-lg-10 col-lg-offset-2 d-flex justify-content-between">
+                      <button type="submit" class="btn btn-primary">Herstel link aanvragen</button>
+                    </div>
+                  </div>
+                </fieldset>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+</div>
+{% endblock %}

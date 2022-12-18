@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %}Artikel toevoegen{% endblock %}
+{% block body %}
+<div id="outer-container" class="container">
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+  <ul class=flashes>
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% endwith %}
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+          <ul class="navbar-nav d-flex flex-row">
+            <!-- Icons -->
+            <li class="nav-item me-3 me-lg-0">
+              <a class="nav-link" href="{{ url_for('index')}}" title="Terug naar lijst">
+                <i class="ri-home-4-fill ri-xl"></i>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    <div class="contentbar">
+        <!-- Start row -->
+        <div class="row">
+            <!-- Start col -->
+            <div class="col-md-12 col-lg-12 col-xl-12">
+                <div class="card m-b-30">
+                    <div class="card-header">
+                        {% if current_user %}<p>Artikelen voor <strong>{{ current_user.fullname }}</strong></p>{% endif %}
+                    </div>
+                    <div class="card-body">
+                        <div class="row justify-content-center">
+                            <div class="col-lg-10 col-xl-8">
+                                <div class="cart-container">
+                                    <div class="cart-head">
+                                        <form method="POST" action="{{ url_for('toevoegen') }}">
+                <div class="form-group">
+                  <input type="text" class="form-control" id="product" name="product" placeholder="Product omschrijving">
+                </div>
+                <button type="submit" class="btn btn-primary">Opslaan</button>
+              </form>
+              {% if results != [] %}
+              <h4 class="product-heading">Reeds beschikbare producten</h4>
+                                        {% else %}
+                                        <h5 class="product-heading">U heeft nog geen producten aangemaakt</h5>
+                                        {% endif %}
+              <div class="row product-list">
+              {% for product in results %}
+
+                <div id="row-{{ product.id }}" class=" col-md-5 col-lg-5 col-xl-5"><span class="article_counter">{{ loop.index }}.</span><a
+                                class="verwijderen"
+                                data-id="{{
+                                product.id
+                                }}" href="#"
+                                class="text-danger"><i
+                                  class="ri-delete-bin-3-line"></i></a><p class="description">{{ product.omschrijving }}</p></div>
+
+              {% endfor %}
+              </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- End col -->
+        </div>
+        <!-- End row -->
+    </div>
+</div>
+<script>
+var main_url = "//" + location.host + "/"
+
+$(document).ready(function() {
+
+ $( ".product-list" ).sortable({
+        stop: function( event, ui ) {
+            var data = []
+            $('div.product-list a').each(function(index, value){
+                data.push({id:$(this).data('id')})
+            });
+            if (data.length > 0) {
+                 jQuery.ajax({
+                    type: 'POST',
+                    contentType: "application/json;",
+                    url: main_url + 'reorder',
+                    data: JSON.stringify(data),
+                    dataType: "json"
+                }).done(function() {
+                    $('span.article_counter').each(function(index, value){
+                        $(this).text((index+1) + ".")
+                    });
+                });;
+
+            }
+    }});
+
+    $('a.verwijderen').on('click', function() {
+
+        var element = $(this)
+        var id = $(this).attr('data-id')
+
+        // Send the data using post
+        var posting = $.post( main_url + 'verwijder_artikel', { id: id} );
+
+        // Put the results in a div
+        posting.done(function( data ) {
+            if (data == "1"){
+                $('div#row-' + id).remove()
+                $('span.article_counter').each(function(index, value){
+                    $(this).text((index+1) + ".")
+                });
+            } else {
+                window.location.href=main_url
+            }
+
+
+
+        });
+
+        return false
+    });
+
+    $("#product").focus()
+
+})
+
+</script>
+{% endblock %}

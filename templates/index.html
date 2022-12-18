@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+{% block title %}Home{% endblock %}
+{% block body %}
+<div id="outer-container" class="container">
+  {% with messages = get_flashed_messages() %}
+  {% if messages %}
+  <ul class=flashes>
+    {% for message in messages %}
+    <li>{{ message }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% endwith %}
+  <!-- Navbar -->
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <!-- Container wrapper -->
+    <div class="container">
+      <!-- Collapsible wrapper -->
+      <div class="collapse navbar-collapse show row"
+        id="navbarButtonsExample">
+        <!-- Left links -->
+        <ul class="navbar-nav me-auto mb-2 col-6 row">
+          <!-- Icons -->
+          <li class="nav-item">
+            <a id="datum-wijzigen-link" class="nav-link" href="#"
+              title="Datum wijzigen">
+              <i class="ri-calendar-2-fill ri-xl"></i>
+            </a>
+          </li>
+          <li class="nav-item"><input type="text" id="datum"
+              name="datum"></li>
+          <li class="nav-item">
+            <a id="restart-link" class="nav-link" href="#" title="Ga
+              naar deze datum">
+              <i class="ri-restart-line ri-xl"></i>
+            </a>
+          </li>
+
+        </ul>
+        <!-- Left links -->
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 col-6">
+          <li class="nav-item me-3 me-lg-0">
+            <a class="nav-link" href="{{ url_for('toevoegen')}}"
+              title="Product toevoegen">
+              <i class="ri-add-box-fill ri-xl"></i>
+            </a>
+          </li>
+        </ul>
+      </div>
+      <!-- Collapsible wrapper -->
+    </div>
+    <!-- Container wrapper -->
+  </nav>
+  <!-- Navbar -->
+  <div class="contentbar">
+    <!-- Start row -->
+    <div class="row">
+      <!-- Start col -->
+      <div class="col-md-12 col-lg-12 col-xl-12">
+        <div class="card m-b-30">
+          <div class="card-header row">
+            <div class="col-md-10 col-lg-10 col-xl-10">
+              <h5 class="card-title">Boodschappenlijst {{ datum
+                }}</h5>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row justify-content-center">
+              <div class="col-lg-10 col-xl-8">
+                <form id="form-artikel" action="" method="post">
+                  <div class="form-group">
+                    <select id="select_artikel"
+                      name="select_artikel"
+                      class="form-control"
+                      required="required"
+                      data-error="Gewenste artikel">
+                      <option value="" selected disabled>--
+                        Selecteer het gewenste artikel
+                        --</option>
+                      {% for artikel in artikelen %}
+                      <option value="{{ artikel.id }}">{{
+                        artikel.omschrijving }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </form>
+                <div class="cart-container">
+                  <div class="cart-head">
+                    <div class="table-responsive">
+                      <table class="table
+                        table-borderless">
+                        <thead>
+                          <tr>
+                            <th scope="col">#</th>
+                            <th scope="col"></th>
+                            <th scope="col">Artikel</th>
+                            <th scope="col"><i
+                                class="ri-checkbox-line
+                                ri-xl"></i></th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for artikel in
+                          reeds_gekozen %}
+                          <tr id="row-{{ artikel.dp_id
+                            }}">
+                            <th
+                              class="artikel-nummer"
+                              scope="row">{{artikel.nummer}}</th>
+                            <td><a
+                                class="verwijderen"
+                                data-id="{{
+                                artikel.dp_id
+                                }}" href="#"
+                                class="text-danger"><i
+                                  class="ri-delete-bin-3-line"></i></a></td>
+                            <td>{{
+                              artikel.omschrijving
+                              }}</td>
+                            <td scope="col"><i
+                                data-id="{{
+                                artikel.dp_id
+                                }}"
+                                data-status="{{
+                                artikel.gevonden
+                                }}"
+                                class="gevonden
+                                ri-{{
+                                artikel.box
+                                }}-line
+                                ri-xl"></i></td>
+                          </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="cart-footer text-right">
+                    <div id="verzendbevestiging"></div>
+                    <a id="pdf-mail" href="#" class="btn
+                      btn-success my-1" data-id="{{
+                      datum_id }}">
+                      Kopie via e-mail<i
+                        class="ri-arrow-right-line
+                        ml-2"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- End col -->
+    </div>
+    <!-- End row -->
+  </div>
+</div>
+<script>
+var main_url = "//" + location.host + "/"
+
+$(document).ready(function() {
+
+    $.ajaxSetup({
+      xhrFields: {
+        withCredentials: true
+      }
+    });
+
+    $('#datum').datepicker({
+        dateFormat: "yymmdd",
+        onSelect: function (datum, calender) {
+            window.location = main_url + $('#datum').val()
+       }
+    });
+    $('#datum-wijzigen-link').click(function() {
+        $('#datum').show()
+        $('#datum').datepicker('show');
+        return false
+    });
+
+    $('#restart-link').click(function(){
+
+        // alert(main_url + $('#datum').val())
+
+        url = main_url + $('#datum').val()
+        window.location.href = url
+        return false
+
+    })
+
+    $('#select_artikel').on('change', function() {
+
+      if (this.value != '') $( "#form-artikel" ).submit();
+    });
+
+    $('i.gevonden').on('click', function() {
+
+        var element = $(this)
+        var id = $(this).attr('data-id')
+        var status = $(this).attr('data-status')
+
+        // Send the data using post
+        var posting = $.post( main_url + 'update_status', { id: id, status: status } );
+
+        // Put the results in a div
+        posting.done(function( data ) {
+            if (status == "0") {
+                element.removeClass('ri-checkbox-blank-line').addClass('ri-checkbox-line')
+                element.attr('data-status',"1")
+            } else {
+                element.removeClass('ri-checkbox-line').addClass('ri-checkbox-blank-line')
+                 element.attr('data-status',"0")
+            }
+        });
+    });
+
+    $('a.verwijderen').on('click', function() {
+
+        var element = $(this)
+        var id = $(this).attr('data-id')
+
+        // Send the data using post
+        var posting = $.post( main_url + 'delete', { id: id} );
+
+        // Put the results in a div
+        posting.done(function( data ) {
+            if (data == "3") {
+              window.location.href = main_url
+              return false
+            } else {
+              $('#row-' + id).remove()
+              $( ".artikel-nummer" ).each( function( index, element ){
+                  $( element ).html(index+1)
+              });
+             }
+        });
+
+        return false
+    });
+
+    $('a#pdf-mail').on('click', function() {
+
+    var element = $(this)
+    var id = $(this).attr('data-id')
+
+    // Send the data using post
+    var posting = $.post( main_url + 'pdfmailen', { datum: id} );
+
+    $('#verzendbevestiging').show().html('<i class="ri-mail-send-line"></i> ... wordt verzonden ...')
+
+    // Put the results in a div
+    posting.done(function( data ) {
+        if (data == "1"){
+            $('#verzendbevestiging').show().html('Verzonden!')
+        } else if (data == "9") {
+            $('#verzendbevestiging').show().html('Niets te verzenden!')
+        } else {
+            window.location.href=main_url
+        }
+    });
+    posting.fail(function() {
+      $('#verzendbevestiging').show().html('Verzending mislukt')
+    });
+
+    return false
+});
+
+});
+
+</script>
+{% endblock %}
