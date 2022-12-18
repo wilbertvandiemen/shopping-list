@@ -1,18 +1,18 @@
 body {
-  background: #f4f5f7;
-  margin-top: 20px;
+	background: #f4f5f7;
+	margin-top: 20px;
 }
 
 .cart-container {
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  padding: 30px;
+	border: 1px solid rgba(0, 0, 0, 0.05);
+	padding: 30px;
 }
 
 .cart-container .cart-body {
-  border-top: 1px solid rgba(0, 0, 0, 0.05);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  padding: 30px 0 20px;
-  margin: 20px 0 30px;
+	border-top: 1px solid rgba(0, 0, 0, 0.05);
+	border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+	padding: 30px 0 20px;
+	margin: 20px 0 30px;
 }
 
 #navbarButtonsExample {
@@ -25,7 +25,7 @@ body {
 }
 
 .card-header {
-margin:0
+	margin: 0
 }
 
 .navbar-nav.ms-auto {
@@ -39,12 +39,14 @@ margin:0
 }
 
 #datum {
-width: 80px;
-display: none;
+	width: 80px;
+	display: none;
 }
+
 #restart-link {
-display: none;
+	display: none;
 }
+
 .ri-restart-line.ri-xl {
 	vertical-align: -.5rem;
 }
@@ -53,16 +55,19 @@ display: none;
 	justify-content: end;
 	text-align: right;
 }
+
 .navbar-nav.me-auto.mb-2.col-6.row {
 	flex-direction: row;
 }
 
 #datum {
-border-radius: .25rem;
+	border-radius: .25rem;
 }
+
 .product-heading {
 	margin-top: 30px;
 }
+
 .product-list {
 	list-style: none;
 	padding-left: 0;
@@ -70,17 +75,17 @@ border-radius: .25rem;
 }
 
 .product-list li {
-    margin: 5px 0;
+	margin: 5px 0;
 }
 
 @media (max-width: 767px) {
-    h5 {
-        font-size: 1rem;
-    }
+	h5 {
+		font-size: 1rem;
+	}
 
- }
+}
 
- ul.flashes li {
+ul.flashes li {
 	list-style: none;
 	color: red;
 	font-weight: bolder;
@@ -89,43 +94,45 @@ border-radius: .25rem;
 }
 
 .nav-item {
-padding-left: 15px;
+	padding-left: 15px;
 }
 
 a.verwijderen i {
-color: darkred;
-float: left;
-margin-top: 5px;
-margin-right: 5px;
+	color: darkred;
+	float: left;
+	margin-top: 5px;
+	margin-right: 5px;
 }
 
-div.card-header > div {
-    padding-right: 0;
+div.card-header>div {
+	padding-right: 0;
 }
 
 #verzendbevestiging {
-  text-align: left;
-  float: left;
-  display: none;
-  color: red;
+	text-align: left;
+	float: left;
+	display: none;
+	color: red;
 }
 
-div.product-list > div {
+div.product-list>div {
 	margin: 5px 5px;
 	background-color: #d3d3d380;
 	padding: 7px;
 	cursor: pointer;
 	float: left;
 }
+
 .article_counter {
 	display: flex;
 	float: left;
 	width: 24px;
 	margin-top: 5px;
 }
-div.product-list > div > p {
-    margin-top: 5px;
-    margin-bottom: 5px;
+
+div.product-list>div>p {
+	margin-top: 5px;
+	margin-bottom: 5px;
 }
 
 ul.product-list .verwijderen {
