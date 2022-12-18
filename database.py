@@ -51,7 +51,7 @@ def check_if_db_exists():
 def open_db_connection():
 
     if linux:
-        print("IsLinux")
+        # print("IsLinux")
         connection = mariadb.connect(
           host=os.environ['SQLALCHEMY_URI_SECRETS_HOST'],
           user=os.environ['SQLALCHEMY_URI_SECRETS_USER'],
@@ -60,7 +60,7 @@ def open_db_connection():
         )
 
     else:
-        print("IsWindows")
+        # print("IsWindows")
         connection = mysql.connector.connect(
           host=os.environ['SQLALCHEMY_URI_SECRETS_HOST'],
           user=os.environ['SQLALCHEMY_URI_SECRETS_USER'],

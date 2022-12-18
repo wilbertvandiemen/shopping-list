@@ -317,7 +317,7 @@ def update_status():
 
     datum_product = Datum_product_record.query.filter_by(id=id).first()
     if datum_product:
-        print('gevonden')
+        # print('gevonden')
         datum_product.gevonden = nieuwe_status
         db.session.commit()
 
