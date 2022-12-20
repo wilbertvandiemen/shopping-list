@@ -45,6 +45,11 @@ mysql_db = os.environ['SQLALCHEMY_URI_SECRETS_DB']
 
 app.config['SQLALCHEMY_DATABASE_URI'] = f"{connection_type}://{ mysql_user }:{ mysql_pwd }@{mysql_host}/{mysql_db}"
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+    'pool_size': 10,
+    'pool_recycle': 60,
+    'pool_pre_ping': True
+}
 
 app.config['SECRET_KEY'] = os.environ['SHOPPING_LIST_SECRET_KEY']
 app.config['TIME_TO_EXPIRE'] = 3600*7
