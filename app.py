@@ -169,6 +169,26 @@ class Datum_product_record(db.Model):
     gevonden =  db.Column(db.Integer, nullable=False, default=0)
 
 
+class Groep_record(db.Model):
+    __tablename__ = 'groep'
+
+    id = db.Column(db.Integer, primary_key=True)
+    omschrijving = db.Column(db.String(32), nullable=False)
+    gebruiker = db.Column(db.Integer, db.ForeignKey('gebruiker.idi'), nullable=False)
+
+    UniqueConstraint(omschrijving, gebruiker, name='omschrijving_gebruiker')
+
+    artikelen = db.relationship('Groep_artikel_record', backref='groep_record')
+
+class Groep_artikel_record(db.Model):
+
+    __tablename__ = 'groep_artikel'
+
+    id = db.Column(db.Integer, primary_key=True)
+    groep = db.Column(db.Integer, db.ForeignKey('groep.id'), nullable=False)
+    artikel = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
+
+
 @login_manager.user_loader
 def load_user(session_token):
 
@@ -221,7 +241,7 @@ def index(active_date):
 
     user = current_user
 
-    artikelen = Product_record.query.filter_by(gebruiker=current_user.idi).order_by("volgorde", "omschrijving").all()
+    artikelen = Product_record.query.filter_by(gebruiker=current_user.idi).order_by("omschrijving").all()
 
     try:
         date = datetime.strptime(active_date, '%Y%m%d')
@@ -305,6 +325,11 @@ def toevoegen():
 
     return render_template('toevoegen.html', results=results, current_user=user)
 
+
+@app.route('/groepen', methods=['POST', 'GET'])
+@login_required
+def groepen():
+    return render_template('groepen.html', current_user=current_user)
 
 # AJAX route
 @app.route('/update_status', methods=['POST'])
