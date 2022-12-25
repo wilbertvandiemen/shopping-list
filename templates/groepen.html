@@ -90,6 +90,21 @@ function get_query(){
   return result;
 }
 
+function check_class(){
+
+    // alle to groen
+    $('div#column-from div.article.btn-success').each(function(index, value){
+        $(this).toggleClass('btn-success').toggleClass('btn-primary')
+    });
+    // alle from blauw
+    $('div#column-to div.article.btn-primary').each(function(index, value){
+        $(this).toggleClass('btn-primary').toggleClass('btn-success')
+    });
+
+
+}
+
+
 $(document).ready(function() {
 
     $.ajaxSetup({
@@ -132,15 +147,7 @@ $(document).ready(function() {
   items: "div.article",
   connectWith: ".connectedSortable",
   stop: function( event, ui ) {
-    // alle to groen
-    $('div#column-from div.article.btn-success').each(function(index, value){
-        $(this).toggleClass('btn-success').toggleClass('btn-primary')
-    });
-    // alle from blauw
-    $('div#column-to div.article.btn-primary').each(function(index, value){
-        $(this).toggleClass('btn-primary').toggleClass('btn-success')
-    });
-
+    check_class()
     var data = []
     $('div#column-to div.article.btn-success').each(function(index, value){
         data.push({id:$(this).data('id')})
@@ -161,6 +168,19 @@ $(document).ready(function() {
     }
 
 });
+
+$(".article").dblclick(function(){
+  if ($(this).hasClass('btn-primary')){
+    $(this).appendTo("#column-to");
+  }
+  if ($(this).hasClass('btn-success')){
+    $(this).appendTo("#column-from");
+  }
+
+  check_class()
+
+})
+
 
 })
 </script>
