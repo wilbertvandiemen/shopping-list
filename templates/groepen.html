@@ -54,14 +54,14 @@
                 <div id="column-from" class="col-md-5 col-lg-5 col-xl-5 connectedSortable">
                    {% for artikel in artikelen %}
                    {% if artikel.id not in groep_artikelen_ids %}
-                    <div class="article btn btn-primary" data-id="{{artikel.id}}">{{ artikel.omschrijving }}</div>
+                    <div class="article btn btn-primary" data-id="{{artikel.id}}" data-order="{{ artikel.omschrijving }}">{{ artikel.omschrijving }}</div>
                     {% endif %}
                     {% endfor %}
                 </div>
                     <div id="column-between" class="col-md-2 col-lg-2 col-xl-2"><i class="ri-arrow-left-right-fill"></i></div>
                 <div id="column-to" class="col-md-5 col-lg-5 col-xl-5 connectedSortable">
                   {% for artikel in groep_artikelen %}
-                    <div class="article btn btn-success" data-id="{{artikel.id}}">{{ artikel.omschrijving }}</div>
+                    <div class="article btn btn-success" data-id="{{artikel.id}}" data-order="{{ artikel.omschrijving }}">{{ artikel.omschrijving }}</div>
                   {% endfor %}
                 </div>
               </div>
@@ -101,6 +101,18 @@ function check_class(){
         $(this).toggleClass('btn-primary').toggleClass('btn-success')
     });
 
+
+}
+
+function sort_from_to() {
+
+$("#column-from div")
+    .sort((a,b) => $(a).data("order") > $(b).data("order"))
+    .appendTo("#column-from");
+
+$("#column-to div")
+    .sort((a,b) => $(a).data("order") > $(b).data("order"))
+    .appendTo("#column-to");
 
 }
 
@@ -178,6 +190,7 @@ $(".article").dblclick(function(){
   }
 
   check_class()
+  sort_from_to()
 
 })
 
