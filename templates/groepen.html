@@ -90,6 +90,32 @@ function get_query(){
   return result;
 }
 
+function save_order(){
+
+  var data = []
+  $('div#column-to div.article').each(function(index, value){
+      data.push({id:$(this).data('id')})
+  });
+  if (data.length > 0) {
+       var post_data = {groep:get_query().id, data:data}
+       jQuery.ajax({
+          type: 'POST',
+          contentType: "application/json;",
+          url: main_url + 'save-groep',
+          data: JSON.stringify(post_data),
+          dataType: "json"
+      }).done(function(data) {
+          kolommen_bijwerken()
+      });
+  }
+
+}
+
+function kolommen_bijwerken(){
+  check_class()
+  sort_from_to()
+}
+
 function check_class(){
 
     // alle to groen
@@ -112,13 +138,13 @@ function vergelijk(a,b){
 
 function sort_from_to() {
 
-$("#column-from div")
-    .sort(vergelijk)
-    .appendTo("#column-from");
+  $("#column-from div")
+      .sort(vergelijk)
+      .appendTo("#column-from");
 
-$("#column-to div")
-    .sort(vergelijk)
-    .appendTo("#column-to");
+  $("#column-to div")
+      .sort(vergelijk)
+      .appendTo("#column-to");
 
 }
 
@@ -130,8 +156,6 @@ $(document).ready(function() {
         withCredentials: true
       }
     });
-
-
 
     $('#select_artikel').on('change', function() {
       if (this.value != '') $( "#form-artikel" ).submit();
@@ -162,28 +186,11 @@ $(document).ready(function() {
     });
 
    $("#column-from, #column-to" ).sortable({
-  items: "div.article",
-  connectWith: ".connectedSortable",
-  stop: function( event, ui ) {
-    check_class()
-    var data = []
-    $('div#column-to div.article.btn-success').each(function(index, value){
-        data.push({id:$(this).data('id')})
-    });
-    if (data.length > 0) {
-         var post_data = {groep:get_query().id, data:data}
-         jQuery.ajax({
-            type: 'POST',
-            contentType: "application/json;",
-            url: main_url + 'save-groep',
-            data: JSON.stringify(post_data),
-            dataType: "json"
-        }).done(function(data) {
-
-            });
-        }
-
-    }
+      items: "div.article",
+      connectWith: ".connectedSortable",
+      stop: function( event, ui ) {
+        save_order()
+      }
 
 });
 
@@ -195,8 +202,7 @@ $(".article").dblclick(function(){
     $(this).appendTo("#column-from");
   }
 
-  check_class()
-  sort_from_to()
+  save_order()
 
 })
 
