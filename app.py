@@ -1,6 +1,6 @@
 from flask import Flask, flash, render_template, g, request, redirect, url_for, session, send_from_directory, json
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import UniqueConstraint, or_, exc
+from sqlalchemy import UniqueConstraint, or_, exc, and_,not_
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 
@@ -124,7 +124,7 @@ class Datum_record(db.Model):
             cursor = connection.cursor(dictionary=True)
 
             # print(f"id = {self.id} en gebruiker id = {current_user.idi}")
-            sql = """select datum.datum as str_datum, datum_product.id as dp_id, p.omschrijving as omschrijving, datum_product.gevonden, datum_product.datum 
+            sql = """select datum.datum as str_datum, datum_product.id as dp_id, p.id as product_id, p.omschrijving as omschrijving, datum_product.gevonden, datum_product.datum 
                                 from datum_product 
                                 inner join datum on datum.id = datum_product.datum 
                                 inner join product p on p.id = datum_product.product
@@ -175,19 +175,18 @@ class Groep_record(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     omschrijving = db.Column(db.String(32), nullable=False)
     gebruiker = db.Column(db.Integer, db.ForeignKey('gebruiker.idi'), nullable=False)
+    artikelen = db.Column(db.String(60))
 
     UniqueConstraint(omschrijving, gebruiker, name='omschrijving_gebruiker')
 
-    artikelen = db.relationship('Groep_artikel_record', backref='groep_record')
+    def getProductRecords(self):
+        result = []
+        if self.artikelen:
+            artikelen_ids = self.artikelen.split(",")
+            for id in artikelen_ids:
+                result.append(Product_record.query.filter_by(id=id).first())
 
-class Groep_artikel_record(db.Model):
-
-    __tablename__ = 'groep_artikel'
-
-    id = db.Column(db.Integer, primary_key=True)
-    groep = db.Column(db.Integer, db.ForeignKey('groep.id'), nullable=False)
-    artikel = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
-
+        return result
 
 @login_manager.user_loader
 def load_user(session_token):
@@ -234,21 +233,39 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
-@app.route('/', defaults={'active_date': default_date_url_parameter}, methods=['POST', 'GET'])
-@app.route('/<active_date>', methods=['POST', 'GET'])
+# @app.route('/', defaults={'active_date': default_date_url_parameter}, methods=['POST', 'GET'])
+# @app.route('/<active_date>', methods=['POST', 'GET'])
+@app.route('/', methods=['POST', 'GET'])
 @login_required
-def index(active_date):
+def index():
+    def get_omschrijving(artikel):
+        return artikel.get('omschrijving')
 
     user = current_user
 
-    artikelen = Product_record.query.filter_by(gebruiker=current_user.idi).order_by("omschrijving").all()
+    if 'd' in  request.args:
+        active_date = request.args['d']
+    else:
+        active_date = default_date_url_parameter
+
+    artikelen_gebruiker = Product_record.query.filter_by(gebruiker=current_user.idi).all()
+    select_items = []
+    for artikel in artikelen_gebruiker:
+        select_items.append({'id':artikel.id, 'omschrijving':artikel.omschrijving})
+
+    groepen = Groep_record.query.filter_by(gebruiker=current_user.idi).all()
+    for groep in groepen:
+        if groep.artikelen != None:
+            select_items.append({'id':-groep.id, 'omschrijving':groep.omschrijving})
+
+    select_items.sort(key=get_omschrijving)
 
     try:
         date = datetime.strptime(active_date, '%Y%m%d')
     except ValueError:
         flash('Ongeldige datum. Gebruik yyyymmdd. Huidige datum gebruikt.')
         pretty_date = datetime.strftime(default_date, pretty_date_format)
-        return redirect(url_for('index') + default_date_url_parameter)
+        return redirect(url_for('index', d=default_date_url_parameter))
 
     # bestaat datum record al?
     datum_record = Datum_record.query.filter_by(datum=active_date, gebruiker=user.idi).first()
@@ -265,27 +282,50 @@ def index(active_date):
 
         datum_id = datum_record.id
 
+    # welke producten zijn reeds gekozen
+    ids = collect_reeds_gekozen_ids(datum_id)
+    # print(ids)
     reeds_gekozen = collect_reeds_gekozen(datum_id)
 
     if request.method == 'POST':
 
-        try:
-            datum_product = Datum_product_record()
-            datum_product.datum = datum_id
-            datum_product.product = request.form['select_artikel']
+        selected = int(request.form['select_artikel'])
 
-            db.session.add(datum_product)
-            db.session.commit()
+        if selected < 0:
+            groep = Groep_record.query.filter_by(id=abs(selected)).first()
+            items = groep.artikelen.split(',')
+            for item in items:
+                # print(int(item))
+                # print(ids)
+                if int(item) not in ids:
+                    datum_product = Datum_product_record()
+                    datum_product.datum = datum_id
+                    datum_product.product = int(item)
 
-        except:
-            db.session.rollback()
-            flash('Je kunt een artikel per dag slechts eenmaal toevoegen')
-            pretty_date = datetime.strftime(date, '%#d %B %Y')
-            return render_template("index.html", datum=pretty_date,
-                                   artikelen=artikelen,
-                                   reeds_gekozen=reeds_gekozen,
-                                   datum_id=datum_id,
-                                   current_user=user)
+                    db.session.add(datum_product)
+                    db.session.commit()
+
+        else:
+
+           if selected not in ids:
+                try:
+                    datum_product = Datum_product_record()
+                    datum_product.datum = datum_id
+                    datum_product.product = selected
+
+                    db.session.add(datum_product)
+                    db.session.commit()
+
+                except:
+                    db.session.rollback()
+                    flash('Je kunt een artikel per dag slechts eenmaal toevoegen')
+                    pretty_date = datetime.strftime(date, '%#d %B %Y')
+                    return render_template("index.html", datum=pretty_date,
+                                           artikelen=select_items,
+                                           reeds_gekozen=reeds_gekozen,
+                                           datum_id=datum_id,
+                                           url_param=active_date,
+                                           current_user=user)
 
     reeds_gekozen = collect_reeds_gekozen(datum_id)
 
@@ -293,7 +333,8 @@ def index(active_date):
     return render_template(
                                 "index.html",
                                 datum=pretty_date,
-                                artikelen=artikelen,
+                                artikelen=select_items,
+                                url_param=active_date,
                                 reeds_gekozen=reeds_gekozen,
                                 datum_id=datum_id,
                                 current_user=user)
@@ -304,6 +345,7 @@ def index(active_date):
 def toevoegen():
 
     user = current_user
+    active_date = request.args['d']
 
     if request.method == 'POST':
 
@@ -321,20 +363,116 @@ def toevoegen():
                 db.session.rollback()
                 flash('Je kunt een artikel slechts eenmaal toevoegen')
 
-    results = Product_record.query.filter_by(gebruiker=current_user.idi).order_by("volgorde", "omschrijving")
+    results = Product_record.query.filter_by(gebruiker=current_user.idi).order_by("volgorde", "omschrijving").all()
 
-    return render_template('toevoegen.html', results=results, current_user=user)
+    return render_template('toevoegen.html', results=results, current_user=user, url_param=active_date)
 
 
 @app.route('/groepen', methods=['POST', 'GET'])
 @login_required
 def groepen():
-    return render_template('groepen.html', current_user=current_user)
+
+    user = current_user
+    active_date = request.args['d']
+
+    if request.method == 'POST':
+
+        name = request.form['groep'].capitalize().strip()
+
+        if name != '':
+            try:
+                groep = Groep_record()
+                groep.gebruiker = user.idi
+                groep.omschrijving = name
+                db.session.add(groep)
+                db.session.commit()
+
+            except exc.IntegrityError:
+                db.session.rollback()
+                flash('Je kunt een groep slechts eenmaal toevoegen')
+
+
+    groepen = Groep_record.query.filter_by(gebruiker=current_user.idi).order_by("omschrijving").all()
+
+    # print(groepen)
+
+    return render_template('toevoegen_groepen.html', current_user=current_user, groepen=groepen, url_param=active_date)
+
+@app.route('/verwijder-groep', methods=['POST', 'GET'])
+def verwijder_groep():
+    """ Hiermee verwijder je een artikel van de gebruiker en de bijbehorende bestellingen """
+
+    if not current_user.is_authenticated:
+        return "3"
+
+    id = request.form['id']
+
+    #  eerst product record ophalen
+    groep = Groep_record.query.filter_by(id=id, gebruiker=current_user.idi).first()
+    # print(groep.omschrijving)
+    if groep:
+        db.session.delete(groep)
+        db.session.commit()
+
+    return "1"
+
+@app.route('/artikelen-in-groepen', methods=['POST', 'GET'])
+@login_required
+def artikelen_in_groepen():
+
+    artikelen = Product_record.query.filter_by(gebruiker=current_user.idi).all()
+
+    groep = request.args['id']
+
+    # print(groep)
+
+    groep_record = Groep_record.query.filter_by(id=groep).first()
+
+    # print(groep_record)
+
+    groep_artikelen = groep_record.getProductRecords()
+    if groep_artikelen:
+        groep_artikelen_ids = groep_record.artikelen.split(',')
+        groep_artikelen_ids = [int(item) for item in groep_artikelen_ids]
+    else:
+        groep_artikelen_ids = []
+
+    # print(groep_artikelen_ids)
+
+    active_date = request.args['d']
+
+    return render_template('groepen.html', current_user=current_user, artikelen=artikelen, groep=groep_record, groep_artikelen=groep_artikelen, groep_artikelen_ids = groep_artikelen_ids, url_param=active_date)
+
+@app.route('/save-groep', methods=['POST'])
+def save_groep():
+
+    if not current_user.is_authenticated:
+        return "3"
+
+    # print(request.json)
+
+    data = request.json
+    artikelen = data['data']
+    reeks = []
+    for artikel in artikelen:
+        reeks.append(str(artikel['id']))
+
+    # print(reeks)
+    # print(current_user.idi)
+
+    groep = Groep_record.query.filter_by(id=data['groep'], gebruiker=current_user.idi).first()
+    groep.artikelen = ",".join(reeks)
+    db.session.commit()
+
+    return "1"
+
 
 # AJAX route
 @app.route('/update_status', methods=['POST'])
 def update_status():
 
+    if not current_user.is_authenticated:
+        return "3"
 
     status = request.form['status']
 
@@ -516,6 +654,19 @@ def collect_reeds_gekozen(datum_id):
 
     return gekozen_array
 
+def collect_reeds_gekozen_ids(datum_id):
+
+    user = current_user
+    datum_record = Datum_record.query.filter_by(id=datum_id).first()
+
+    artikelen_gekozen = datum_record.bestellingen_ordered()
+
+    gekozen_array = []
+    for item in artikelen_gekozen:
+        gekozen_array.append(item['product_id'])
+
+    return gekozen_array
+
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -565,7 +716,7 @@ def register():
             db.session.add(gebruiker)
             db.session.commit()
 
-            verzend_email_confirmation_email(gebruiker.id)
+            verzend_email_confirmation_email(gebruiker.idi)
 
             flash("Check je mailbox voor een e-mail waarmee je je e-mailadres kunt bevestigen.")
 
@@ -772,7 +923,7 @@ def verzend_email_confirmation_email(id):
     confirmation_url = base_url + "confirm/" + token
     date = datetime.now().strftime('%Y%m%d%H%M')
 
-    gebruiker = Gebruiker_record.query.filter_by(id = id).first()
+    gebruiker = Gebruiker_record.query.filter_by(idi = id).first()
     gebruiker.validation_key = token
     gebruiker.validation_date = date
 
@@ -801,7 +952,7 @@ def verzend_email_confirmation_email(id):
     mailServer.starttls()
     mailServer.login(sender_email_address, sender_email_password)
     mailServer.sendmail(sender_email_address, mailto, msg)
-    print(" \n Sent!")
+    # print(" \n Sent!")
     mailServer.quit()
 
 

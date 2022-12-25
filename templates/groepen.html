@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Groepen toevoegen / bewerken{% endblock %}
+{% block title %}Artikelen aan groep toevoegen{% endblock %}
 {% block body %}
 <div id="outer-container" class="container">
   {% with messages = get_flashed_messages() %}
@@ -22,7 +22,7 @@
         <ul class="navbar-nav me-auto mb-2 col-6 row">
           <!-- Icons -->
           <li class="nav-item">
-             <a class="nav-link" href="{{ url_for('index')}}" title="Terug naar lijst">
+             <a class="nav-link" href="{{ url_for('index',d=url_param)}}" title="Terug naar lijst">
                 <i class="ri-home-4-fill ri-xl"></i>
               </a>
           </li>
@@ -41,154 +41,29 @@
         <div class="card m-b-30">
           <div class="card-header row">
             <div class="col-md-10 col-lg-10 col-xl-10">
-              <h5 class="card-title">Productgroepen toevoegen / bewerken</h5>
+              <h5 class="card-title">Artikelen toevoegen aan groep {{groep.omschrijving}}</h5>
             </div>
           </div>
           <div class="card-body">
             <div class="row justify-content-center">
               <div class="col-lg-10 col-xl-8">
-                <form id="form-artikel" action="" method="post">
-                  <div class="form-group">
-                    <select id="select_artikel"
-                      name="select_artikel"
-                      class="form-control"
-                      required="required"
-                      data-error="Gewenste artikel">
-                      <option value="" selected disabled>-- Selecteer een bestaande groep artikel --</option>
-                      {% for groep in groepen %}
-                      <option value="{{ groep.id }}">{{
-                        groep.omschrijving }}</option>
-                      {% endfor %}
-                    </select>
-                  </div>
-                </form>
                 <div class="cart-container">
-                <div class="row product-list ui-sortable">
-
-
-                <div id="row-33" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">1.</span><a class="verwijderen" data-id="33" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Aubergine</p></div>
-
-
-
-                <div id="row-34" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">2.</span><a class="verwijderen" data-id="34" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Tomaten tros</p></div>
-
-
-
-                <div id="row-17" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">3.</span><a class="verwijderen" data-id="17" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Aardappel (Schijfjes Of Partjes)</p></div>
-
-
-
-                <div id="row-15" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">4.</span><a class="verwijderen" data-id="15" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Winterwortel</p></div>
-
-
-
-                <div id="row-27" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">5.</span><a class="verwijderen" data-id="27" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Uien</p></div>
-
-
-
-                <div id="row-20" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">6.</span><a class="verwijderen" data-id="20" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Beyond Meat Mince</p></div>
-
-
-
-                <div id="row-19" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">7.</span><a class="verwijderen" data-id="19" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Beyond Meat Burgers</p></div>
-
-
-
-                <div id="row-12" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">8.</span><a class="verwijderen" data-id="12" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Balletjes</p></div>
-
-
-
-                <div id="row-25" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">9.</span><a class="verwijderen" data-id="25" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Salade</p></div>
-
-
-
-                <div id="row-24" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">10.</span><a class="verwijderen" data-id="24" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Appeltjes, Kleine Zoete</p></div>
-
-
-
-                <div id="row-22" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">11.</span><a class="verwijderen" data-id="22" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Pasta Ingredienten</p></div>
-
-
-
-                <div id="row-21" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">12.</span><a class="verwijderen" data-id="21" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Groenten Naar Keuze</p></div>
-
-
-
-                <div id="row-28" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">13.</span><a class="verwijderen" data-id="28" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Haricots verts</p></div>
-
-
-
-                <div id="row-6" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">14.</span><a class="verwijderen" data-id="6" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Broccoli</p></div>
-
-
-
-                <div id="row-26" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">15.</span><a class="verwijderen" data-id="26" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Courgette</p></div>
-
-
-
-                <div id="row-3" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">16.</span><a class="verwijderen" data-id="3" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Brood</p></div>
-
-
-
-                <div id="row-23" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">17.</span><a class="verwijderen" data-id="23" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Mild Creamy</p></div>
-
-
-
-                <div id="row-4" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">18.</span><a class="verwijderen" data-id="4" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Yoghurt</p></div>
-
-
-
-                <div id="row-5" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">19.</span><a class="verwijderen" data-id="5" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Basmati rijst</p></div>
-
-
-
-                <div id="row-8" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">20.</span><a class="verwijderen" data-id="8" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Pindakaas</p></div>
-
-
-
-                <div id="row-2" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">21.</span><a class="verwijderen" data-id="2" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Eieren</p></div>
-
-
-
-                <div id="row-18" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">22.</span><a class="verwijderen" data-id="18" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Rode Wijn</p></div>
-
-
-
-                <div id="row-30" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">23.</span><a class="verwijderen" data-id="30" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Havermout</p></div>
-
-
-
-                <div id="row-1" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">24.</span><a class="verwijderen" data-id="1" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Havermelk</p></div>
-
-
-
-                <div id="row-13" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">25.</span><a class="verwijderen" data-id="13" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Chips naturel</p></div>
-
-
-
-                <div id="row-10" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">26.</span><a class="verwijderen" data-id="10" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Mergkoekjes</p></div>
-
-
-
-                <div id="row-32" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">27.</span><a class="verwijderen" data-id="32" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Veganistische koekjes</p></div>
-
-
-
-                <div id="row-14" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">28.</span><a class="verwijderen" data-id="14" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Nootjes</p></div>
-
-
-
-                <div id="row-29" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">29.</span><a class="verwijderen" data-id="29" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Afwasmiddel</p></div>
-
-
-
-                <div id="row-31" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">30.</span><a class="verwijderen" data-id="31" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Handwaszeep</p></div>
-
-
-
-                <div id="row-7" class="col-md-5 col-lg-5 col-xl-5 ui-sortable-handle"><span class="article_counter">31.</span><a class="verwijderen" data-id="7" href="#"><i class="ri-delete-bin-3-line"></i></a><p class="description">Afwasborsteltje</p></div>
-
-
+                  <div class="row article-list">
+                    <!-- twee kolommen om producten van links naar rechts te slepen -->
+
+                <div id="column-from" class="col-md-5 col-lg-5 col-xl-5 connectedSortable">
+                   {% for artikel in artikelen %}
+                   {% if artikel.id not in groep_artikelen_ids %}
+                    <div class="article btn btn-primary" data-id="{{artikel.id}}">{{ artikel.omschrijving }}</div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+                    <div id="column-between" class="col-md-2 col-lg-2 col-xl-2"><i class="ri-arrow-left-right-fill"></i></div>
+                <div id="column-to" class="col-md-5 col-lg-5 col-xl-5 connectedSortable">
+                  {% for artikel in groep_artikelen %}
+                    <div class="article btn btn-success" data-id="{{artikel.id}}">{{ artikel.omschrijving }}</div>
+                  {% endfor %}
+                </div>
               </div>
 
                 </div>
@@ -205,6 +80,16 @@
 <script>
 var main_url = "//" + location.host + "/"
 
+function get_query(){
+  var url = document.location.href;
+  var qs = url.substring(url.indexOf('?') + 1).split('&');
+  for(var i = 0, result = {}; i < qs.length; i++){
+    qs[i] = qs[i].split('=');
+    result[qs[i][0]] = decodeURIComponent(qs[i][1]);
+  }
+  return result;
+}
+
 $(document).ready(function() {
 
     $.ajaxSetup({
@@ -213,52 +98,10 @@ $(document).ready(function() {
       }
     });
 
-    $('#datum').datepicker({
-        dateFormat: "yymmdd",
-        onSelect: function (datum, calender) {
-            window.location = main_url + $('#datum').val()
-       }
-    });
-    $('#datum-wijzigen-link').click(function() {
-        $('#datum').show()
-        $('#datum').datepicker('show');
-        return false
-    });
 
-    $('#restart-link').click(function(){
-
-        // alert(main_url + $('#datum').val())
-
-        url = main_url + $('#datum').val()
-        window.location.href = url
-        return false
-
-    })
 
     $('#select_artikel').on('change', function() {
-
       if (this.value != '') $( "#form-artikel" ).submit();
-    });
-
-    $('i.gevonden').on('click', function() {
-
-        var element = $(this)
-        var id = $(this).attr('data-id')
-        var status = $(this).attr('data-status')
-
-        // Send the data using post
-        var posting = $.post( main_url + 'update_status', { id: id, status: status } );
-
-        // Put the results in a div
-        posting.done(function( data ) {
-            if (status == "0") {
-                element.removeClass('ri-checkbox-blank-line').addClass('ri-checkbox-line')
-                element.attr('data-status',"1")
-            } else {
-                element.removeClass('ri-checkbox-line').addClass('ri-checkbox-blank-line')
-                 element.attr('data-status',"0")
-            }
-        });
     });
 
     $('a.verwijderen').on('click', function() {
@@ -285,34 +128,40 @@ $(document).ready(function() {
         return false
     });
 
-    $('a#pdf-mail').on('click', function() {
+   $("#column-from, #column-to" ).sortable({
+  items: "div.article",
+  connectWith: ".connectedSortable",
+  stop: function( event, ui ) {
+    // alle to groen
+    $('div#column-from div.article.btn-success').each(function(index, value){
+        $(this).toggleClass('btn-success').toggleClass('btn-primary')
+    });
+    // alle from blauw
+    $('div#column-to div.article.btn-primary').each(function(index, value){
+        $(this).toggleClass('btn-primary').toggleClass('btn-success')
+    });
 
-    var element = $(this)
-    var id = $(this).attr('data-id')
+    var data = []
+    $('div#column-to div.article.btn-success').each(function(index, value){
+        data.push({id:$(this).data('id')})
+    });
+    if (data.length > 0) {
+         var post_data = {groep:get_query().id, data:data}
+         jQuery.ajax({
+            type: 'POST',
+            contentType: "application/json;",
+            url: main_url + 'save-groep',
+            data: JSON.stringify(post_data),
+            dataType: "json"
+        }).done(function(data) {
 
-    // Send the data using post
-    var posting = $.post( main_url + 'pdfmailen', { datum: id} );
-
-    $('#verzendbevestiging').show().html('<i class="ri-mail-send-line"></i> ... wordt verzonden ...')
-
-    // Put the results in a div
-    posting.done(function( data ) {
-        if (data == "1"){
-            $('#verzendbevestiging').show().html('Verzonden!')
-        } else if (data == "9") {
-            $('#verzendbevestiging').show().html('Niets te verzenden!')
-        } else {
-            window.location.href=main_url
+            });
         }
-    });
-    posting.fail(function() {
-      $('#verzendbevestiging').show().html('Verzending mislukt')
-    });
 
-    return false
-});
+    }
 
 });
 
+})
 </script>
 {% endblock %}

@@ -40,13 +40,13 @@
         <!-- Left links -->
         <ul class="navbar-nav me-auto mb-2 mb-lg-0 col-6">
           <li class="nav-item me-3 me-lg-0">
-            <a class="nav-link" href="{{ url_for('toevoegen')}}"
+            <a class="nav-link" href="{{ url_for('toevoegen',d=url_param)}}"
               title="Product toevoegen">
               <i class="ri-add-box-fill ri-xl"></i>
             </a>
           </li>
           <li class="nav-item me-3 me-lg-0">
-            <a class="nav-link" href="{{ url_for('groepen')}}"
+            <a class="nav-link" href="{{ url_for('groepen',d=url_param)}}"
               title="Groep toevoegen / bewerken">
               <i class="ri-shopping-basket-line ri-xl"></i>
             </a>
@@ -73,7 +73,7 @@
           <div class="card-body">
             <div class="row justify-content-center">
               <div class="col-lg-10 col-xl-8">
-                <form id="form-artikel" action="" method="post">
+                <form id="form-artikel" action="{{ url_for("index") }}?d={{url_param}}" method="post">
                   <div class="form-group">
                     <select id="select_artikel"
                       name="select_artikel"
@@ -176,7 +176,7 @@ $(document).ready(function() {
     $('#datum').datepicker({
         dateFormat: "yymmdd",
         onSelect: function (datum, calender) {
-            window.location = main_url + $('#datum').val()
+            window.location = main_url +'?d=' + $('#datum').val()
        }
     });
     $('#datum-wijzigen-link').click(function() {
@@ -184,16 +184,6 @@ $(document).ready(function() {
         $('#datum').datepicker('show');
         return false
     });
-
-    $('#restart-link').click(function(){
-
-        // alert(main_url + $('#datum').val())
-
-        url = main_url + $('#datum').val()
-        window.location.href = url
-        return false
-
-    })
 
     $('#select_artikel').on('change', function() {
 
