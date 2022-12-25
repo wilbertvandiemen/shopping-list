@@ -420,7 +420,7 @@ def verwijder_groep():
 @login_required
 def artikelen_in_groepen():
 
-    artikelen = Product_record.query.filter_by(gebruiker=current_user.idi).all()
+    artikelen = Product_record.query.filter_by(gebruiker=current_user.idi).order_by('omschrijving').all()
 
     groep = request.args['id']
 
