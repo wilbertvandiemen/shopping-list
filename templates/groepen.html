@@ -104,14 +104,20 @@ function check_class(){
 
 }
 
+function vergelijk(a,b){
+  if ($(a).data("order") > $(b).data("order")) return 1
+  if ($(a).data("order") == $(b).data("order")) return 0
+  if ($(a).data("order") < $(b).data("order")) return -1
+}
+
 function sort_from_to() {
 
 $("#column-from div")
-    .sort((a,b) => $(a).data("order") > $(b).data("order"))
+    .sort(vergelijk)
     .appendTo("#column-from");
 
 $("#column-to div")
-    .sort((a,b) => $(a).data("order") > $(b).data("order"))
+    .sort(vergelijk)
     .appendTo("#column-to");
 
 }
