@@ -223,9 +223,9 @@ def is_valid_email_address(email_address):
         return False
     return True
 
-
-default_date = datetime.now()
-default_date_url_parameter = datetime.strftime(default_date, '%Y%m%d')
+def get_default_date():
+    default_date = datetime.now()
+    return datetime.strftime(default_date, '%Y%m%d')
 
 
 @app.route('/favicon.ico')
@@ -233,8 +233,6 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
-# @app.route('/', defaults={'active_date': default_date_url_parameter}, methods=['POST', 'GET'])
-# @app.route('/<active_date>', methods=['POST', 'GET'])
 @app.route('/', methods=['POST', 'GET'])
 @login_required
 def index():
@@ -246,7 +244,7 @@ def index():
     if 'd' in  request.args:
         active_date = request.args['d']
     else:
-        active_date = default_date_url_parameter
+        active_date = get_default_date()
 
     artikelen_gebruiker = Product_record.query.filter_by(gebruiker=current_user.idi).all()
     select_items = []
@@ -264,8 +262,7 @@ def index():
         date = datetime.strptime(active_date, '%Y%m%d')
     except ValueError:
         flash('Ongeldige datum. Gebruik yyyymmdd. Huidige datum gebruikt.')
-        pretty_date = datetime.strftime(default_date, pretty_date_format)
-        return redirect(url_for('index', d=default_date_url_parameter))
+        return redirect(url_for('index', d=active_date))
 
     # bestaat datum record al?
     datum_record = Datum_record.query.filter_by(datum=active_date, gebruiker=user.idi).first()
@@ -569,7 +566,7 @@ def pdfmailen():
     if boodschappen:
         gekozen_datum = boodschappen[0]['str_datum']
         date = datetime.strptime(gekozen_datum, '%Y%m%d')
-        pretty_date = datetime.strftime(date, '%#d %B %Y')
+        pretty_date = datetime.strftime(date, pretty_date_format)
 
     else:
         return "9"
