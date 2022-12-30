@@ -103,6 +103,11 @@ class Gebruiker_record(UserMixin, db.Model):
         # print(f"In get_id: {self.session_token}")
         return self.session_token
 
+    def get_default_org(self):
+        org = Organisatie_record.query.filter_by(gebruiker=self.idi, standaard=1).first()
+        return org.id
+
+
 class Datum_record(db.Model):
 
     __tablename__ = 'datum'
@@ -152,6 +157,7 @@ class Product_record(db.Model):
     gebruiker = db.Column(db.Integer, db.ForeignKey('gebruiker.idi'), nullable=False)
     omschrijving = db.Column(db.String(256), nullable=False)
     volgorde = db.Column(db.Integer, nullable=False, default=0)
+    organisatie = db.Column(db.Integer, db.ForeignKey('organisatie.id'))
 
     UniqueConstraint(gebruiker, omschrijving, name='gebruiker_product')
 
@@ -184,9 +190,21 @@ class Groep_record(db.Model):
         if self.artikelen:
             artikelen_ids = self.artikelen.split(",")
             for id in artikelen_ids:
-                result.append(Product_record.query.filter_by(id=id).first())
+                product = Product_record.query.filter_by(id=id).first()
+                if product:
+                    result.append(product)
 
         return result
+
+class Organisatie_record(db.Model):
+    __tablename__ = 'organisatie'
+
+    id = db.Column(db.Integer, primary_key=True)
+    omschrijving = db.Column(db.String(32), nullable=False)
+    gebruiker = db.Column(db.Integer, db.ForeignKey('gebruiker.idi'), nullable=False)
+    standaard = db.Column(db.Boolean, default = False, nullable=False)
+
+    UniqueConstraint(omschrijving, gebruiker, name='organisatie_gebruiker')
 
 @login_manager.user_loader
 def load_user(session_token):
@@ -203,6 +221,22 @@ def load_user(session_token):
         user.session_token = None
         db.session.commit()
         return None
+
+    # check for default organisatie
+    org = Organisatie_record.query.filter_by(gebruiker=user.idi, standaard=True).first()
+    if not org:
+        org = Organisatie_record()
+        org.gebruiker = user.idi
+        org.standaard = True
+        org.omschrijving = 'Geen organisatie'
+
+        db.session.add(org)
+        db.session.commit()
+
+    artikelen  = Product_record.query.filter_by(gebruiker=user.idi, organisatie=None)
+    for artikel in artikelen:
+        artikel.organisatie = org.id
+        db.session.commit()
 
     return user
 
@@ -464,6 +498,62 @@ def save_groep():
     return "1"
 
 
+@app.route('/organisaties', methods=['POST', 'GET'])
+@login_required
+def organisaties():
+
+    user = current_user
+    active_date = request.args['d']
+
+    if request.method == 'POST':
+
+        name = request.form['organisatie'].capitalize().strip()
+
+        if name != '':
+            try:
+                org = Organisatie_record()
+                org.gebruiker = user.idi
+                org.omschrijving = name
+                db.session.add(org)
+                db.session.commit()
+
+            except exc.IntegrityError:
+                db.session.rollback()
+                flash('Je kunt een organisatie slechts eenmaal toevoegen')
+
+
+    orgs = Organisatie_record.query.filter_by(gebruiker=current_user.idi).order_by("omschrijving").all()
+
+    # print(groepen)
+
+    return render_template('toevoegen_organisaties.html', current_user=current_user, organisaties=orgs, url_param=active_date)
+
+@app.route('/verwijder-organisatie', methods=['POST'])
+def verwijder_organisatie():
+    """ Hiermee verwijder je een artikel van de gebruiker en de bijbehorende bestellingen """
+
+    if not current_user.is_authenticated:
+        return "3"
+
+    id = request.form['id']
+
+    #  eerst product record ophalen
+    organisatie = Organisatie_record.query.filter_by(id=id, gebruiker=current_user.idi).first()
+    # print(groep.omschrijving)
+    if organisatie:
+        if organisatie.standaard != 0:
+            # wat is de standaard voor deze gebruiker
+            standaard = current_user.standaard()
+            #  zoek artikelen met deze organisatie
+            artikelen = Product_record.query.filter_by(gebruiker=current_user.idi, organisatie=organisatie.id).all()
+            for artikel in artikelen:
+                artikel.organisatie = standaard
+                db.session.commit()
+
+            db.session.delete(organisatie)
+            db.session.commit()
+
+    return "1"
 # AJAX route
 @app.route('/update_status', methods=['POST'])
 def update_status():
@@ -522,6 +612,40 @@ def reorder():
             db.session.commit()
 
     return '1'
+
+@app.route('/bewerk-artikel', methods=['POST', 'GET'])
+@login_required
+def bewerk_artikel():
+    # 0 = omschrijving
+    form_validation = [["", ""]]
+
+    id = request.args['id']
+    active_date = request.args['d']
+
+    #  eerst product record ophalen
+    artikel = Product_record.query.filter_by(id=id, gebruiker=current_user.idi).first()
+
+    if request.method == "POST":
+        if request.form['omschrijving']:
+
+            print(request.form['organisatie'])
+            artikel.omschrijving = request.form['omschrijving'].strip()
+            artikel.organisatie = request.form['organisatie']
+            db.session.commit()
+
+            results = Product_record.query.filter_by(gebruiker=current_user.idi).order_by("volgorde",
+                                                                                          "omschrijving").all()
+
+            return render_template('toevoegen.html', results=results, current_user=current_user, url_param=active_date)
+
+        else:
+            form_validation[0] = ['is-invalid', 'Een omschrijving is verplicht voor een product']
+
+    # organisaties
+    orgs = Organisatie_record.query.filter_by(gebruiker=current_user.idi).order_by(Organisatie_record.standaard.desc(), Organisatie_record.omschrijving).all()
+
+    return render_template('product-edit.html', product=artikel, select=orgs, fv=form_validation, url_param=active_date)
+
 
 # AJAX route
 @app.route('/verwijder_artikel', methods=['POST'])

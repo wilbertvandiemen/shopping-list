@@ -122,6 +122,21 @@ div.product-list>div, div.group-list>div {
 	float: left;
 }
 
+div.org-list .org-inner {
+	background-color: #d3d3d380;
+	padding: 10px;
+	margin: 4px;
+}
+
+div.org-list p {
+    display: inline-block;
+}
+
+.org-inner i {
+
+    cursor:pointer;
+}
+
 .ri-arrow-left-right-fill {
 font-size: 200%;
 }
@@ -144,6 +159,7 @@ div.group-list>div{
 
 div.product-list>div>p {
 	margin-bottom: 0px;
+	display: inline-block;
 }
 
 ul.product-list .verwijderen {
