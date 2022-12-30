@@ -51,13 +51,12 @@
               <div class="row product-list">
               {% for product in results %}
 
-                <div id="row-{{ product.id }}" class=" col-md-5 col-lg-5 col-xl-5"><span class="article_counter">{{ loop.index }}.</span><a
-                                class="verwijderen"
-                                data-id="{{
-                                product.id
-                                }}" href="#"
-                                class="text-danger"><i
-                                  class="ri-delete-bin-3-line"></i></a><p class="description">{{product.omschrijving}}</p></div>
+                <div id="row-{{ product.id }}" class=" col-md-5 col-lg-5 col-xl-5">
+                    <span class="article_counter">{{ loop.index }}.</span>
+                        <a href="{{ url_for('bewerk_artikel',id=product.id, d=url_param) }}"><i data-id="{{ product.id }}" class="org-edit ri-edit-line"></i></a>
+                        <i data-id="{{ product.id }}" class="art-del ri-delete-bin-3-line"></i>
+                    <p class="description">{{product.omschrijving}}</p>
+                </div>
 
               {% endfor %}
               </div>
@@ -101,13 +100,13 @@ $(document).ready(function() {
             }
     }});
 
-    $('a.verwijderen').on('click', function() {
+    $('.art-del').on('click', function() {
 
         var element = $(this)
         var id = $(this).attr('data-id')
 
         // Send the data using post
-        var posting = $.post( main_url + 'verwijder_artikel', { id: id} );
+        var posting = $.post( '{{ url_for('verwijder_artikel') }}', { id: id} );
 
         // Put the results in a div
         posting.done(function( data ) {
