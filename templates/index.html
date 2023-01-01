@@ -40,21 +40,27 @@
         <!-- Left links -->
         <ul class="navbar-nav me-auto mb-2 mb-lg-0 col-6">
           <li class="nav-item me-3 me-lg-0">
-            <a class="nav-link" href="{{ url_for('toevoegen',d=url_param)}}"
+            <a class="nav-link" href="{{ url_for('artikelen.toevoegen',d=url_param)}}"
               title="Product toevoegen">
               <i class="ri-menu-add-fill ri-xl"></i>
             </a>
           </li>
           <li class="nav-item me-3 me-lg-0">
-            <a class="nav-link" href="{{ url_for('organisaties',d=url_param)}}"
+            <a class="nav-link" href="{{ url_for('organisaties.organisaties',d=url_param)}}"
               title="Groep toevoegen">
               <i class="ri-list-check-2 ri-xl"></i>
             </a>
           </li>
           <li class="nav-item me-3 me-lg-0">
-            <a class="nav-link" href="{{ url_for('groepen',d=url_param)}}"
+            <a class="nav-link" href="{{ url_for('groepen.groepen',d=url_param)}}"
               title="Groep toevoegen / bewerken">
               <i class="ri-shopping-basket-line ri-xl"></i>
+            </a>
+          </li>
+          <li class="nav-item me-3 me-lg-0">
+            <a class="nav-link" href="{{ url_for('gebruikers.logout')}}"
+              title="Logout">
+              <i class="ri-logout-box-r-line ri-xl"></i>
             </a>
           </li>
         </ul>
@@ -72,26 +78,39 @@
         <div class="card m-b-30">
           <div class="card-header row">
             <div class="col-md-10 col-lg-10 col-xl-10">
-              <h5 class="card-title">Boodschappenlijst {{ datum
-                }}</h5>
+              <h5 class="card-title">Boodschappenlijst {{ datum }}</h5>
+              <p>van {{ current_user.fullname }}</p>
             </div>
           </div>
           <div class="card-body">
             <div class="row justify-content-center">
               <div class="col-lg-10 col-xl-8">
-                <form id="form-artikel" action="{{ url_for("index") }}?d={{url_param}}" method="post">
+                <p>Filter de artikelen in de keuze-lijst:</p>
+                <div class="form-check">
+                  <input class="form-check-input" type="checkbox" value="-1" id="org_groepen" {% if -1 in organisaties_selected %}checked {% endif %}>
+                    <label class="form-check-label" for="org_groepen">
+                      Groepen
+                    </label>
+                  {% for org in organisaties %}
+                  <input class="form-check-input" type="checkbox" value="{{ org.id}}" id="org_{{ org.id}}" {% if org.id in organisaties_selected %}checked {% endif %} >
+                    <label class="form-check-label" for="org_{{ org.id}}">
+                      {{org.omschrijving}}
+                    </label>
+                  {% endfor%}
+                </div>
+              </div>
+              <div class="col-lg-10 col-xl-8">
+                <form id="form-artikel" action="{{ url_for('index') }}?d={{url_param}}" method="post">
                   <div class="form-group">
+                    <input type="hidden" id="orgs_selected" name="orgs_selected">
                     <select id="select_artikel"
                       name="select_artikel"
                       class="form-control"
                       required="required"
                       data-error="Gewenste artikel">
-                      <option value="" selected disabled>--
-                        Selecteer het gewenste artikel
-                        --</option>
+                      <option value="" selected disabled>-- Selecteer het gewenste artikel --</option>
                       {% for artikel in artikelen %}
-                      <option value="{{ artikel.id }}">{{
-                        artikel.omschrijving }}</option>
+                      <option value="{{ artikel.id }}">{{ artikel.omschrijving }}</option>
                       {% endfor %}
                     </select>
                   </div>
@@ -191,6 +210,32 @@ $(document).ready(function() {
         return false
     });
 
+    $('.form-check-input').on('change', function() {
+
+      // select lijst bijwerken
+      // welke groepen zijn aangeklikt
+
+      keuze = []
+      $( ".form-check-input" ).each( function( index, element ){
+        if (element.checked) keuze.push($(element).val())
+      });
+
+      data = keuze.join(",")
+
+      $("#orgs_selected").val(data)
+
+      var posting = $.post( '{{ url_for('update_select') }}', { keuze: data } );
+
+      // Put the results in a div
+      posting.done(function( data ) {
+        $('#select_artikel').find('option').not(':first').remove();
+        $.each( data, function( key, value ) {
+          $('#select_artikel').append(new Option(value.omschrijving, value.id));;
+        });
+      });
+    })
+
+
     $('#select_artikel').on('change', function() {
 
       if (this.value != '') $( "#form-artikel" ).submit();
@@ -203,7 +248,7 @@ $(document).ready(function() {
         var status = $(this).attr('data-status')
 
         // Send the data using post
-        var posting = $.post( main_url + 'update_status', { id: id, status: status } );
+        var posting = $.post( '{{ url_for('update_status') }}', { id: id, status: status } );
 
         // Put the results in a div
         posting.done(function( data ) {

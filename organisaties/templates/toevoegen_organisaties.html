@@ -21,6 +21,33 @@
               </a>
             </li>
           </ul>
+<!-- Left links -->
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 col-6">
+          <li class="nav-item me-3 me-lg-0">
+            <a class="nav-link" href="{{ url_for('artikelen.toevoegen',d=url_param)}}"
+              title="Product toevoegen">
+              <i class="ri-menu-add-fill ri-xl"></i>
+            </a>
+          </li>
+          <li class="nav-item me-3 me-lg-0">
+            <a class="nav-link" href="{{ url_for('organisaties.organisaties',d=url_param)}}"
+              title="Groep toevoegen">
+              <i class="ri-list-check-2 ri-xl"></i>
+            </a>
+          </li>
+          <li class="nav-item me-3 me-lg-0">
+            <a class="nav-link" href="{{ url_for('groepen.groepen',d=url_param)}}"
+              title="Groep toevoegen / bewerken">
+              <i class="ri-shopping-basket-line ri-xl"></i>
+            </a>
+          </li>
+          <li class="nav-item me-3 me-lg-0">
+            <a class="nav-link" href="{{ url_for('gebruikers.logout')}}"
+              title="Logout">
+              <i class="ri-logout-box-r-line ri-xl"></i>
+            </a>
+          </li>
+        </ul>
         </div>
       </nav>
     <div class="contentbar">
@@ -37,7 +64,7 @@
                             <div class="col-lg-12 col-xl-12">
                                 <div class="cart-container">
                                     <div class="cart-head">
-                                        <form method="POST" action="{{ url_for('organisaties',d=url_param) }}">
+                                        <form method="POST" action="{{ url_for('organisaties.organisaties',d=url_param) }}">
                 <div class="form-group">
                   <input type="text" class="form-control" id="organisatie" name="organisatie" placeholder="Organisatie omschrijving">
                 </div>
@@ -54,9 +81,13 @@
                 <div id="row-{{ org.id }}" class=" col-md-6 col-lg-6 col-xl-6">
                     <div class="org-inner">
                         <span class="article_counter">{{ loop.index }}.</span>
+                        {% if org.standaard %}
+                        <p id="org_{{ org.id }}" data-id="{{ org.id }}" class="description" contenteditable>{{ org.omschrijving }} (standaard)</p>
+                        {% else %}
                         <i data-id="{{ org.id }}" class="edit-org ri-edit-line"></i>
                         <i data-id="{{ org.id }}" class="del-org ri-delete-bin-3-line"></i>
-                        <p class="description">{{ org.omschrijving }}</p>
+                        <p id="org_{{ org.id }}" data-id="{{ org.id }}" class="description" contenteditable>{{ org.omschrijving }}</p>
+                        {% endif %}
                     </div>
 
                 </div>
@@ -88,13 +119,23 @@ $(document).ready(function() {
       }
     });
 
+    $('.edit-org').on('click', function() {
+
+        var element = $(this)
+        var id = $(this).attr('data-id')
+        setTimeout(function() {
+             $('p#org_' + id).css({"padding": "0 10px", 'border':'solid thin #ccc'}).focus();
+         }, 0);
+
+    })
+
      $('.del-org').on('click', function() {
 
         var element = $(this)
         var id = $(this).attr('data-id')
 
         // Send the data using post
-        var posting = $.post( main_url + 'verwijder-organisatie', { id: id} );
+        var posting = $.post( '{{ url_for('organisaties.verwijder_organisatie') }}', { id: id} );
 
         // Put the results in a div
         posting.done(function( data ) {
@@ -112,7 +153,30 @@ $(document).ready(function() {
         return false
     });
 
-    $("#groep").focus()
+    var old_value
+
+    $('p.description').focus( function() {
+        const $this = $(this);
+        old_value = $this.html()
+        console.log($this.html())
+    })
+
+   $('p.description').focusout( function() {
+        const $this = $(this);
+        console.log($this.html())
+        if (old_value != $this.html()){
+
+            var id = $(this).attr('data-id')
+
+            // Send the data using post
+            var posting = $.post( '{{ url_for('organisaties.wijzig_organisatie') }}', { id: id, naam:$this.html() } );
+
+        }
+    });
+
+
+
+    $("#organisatie").focus()
 
 })
 

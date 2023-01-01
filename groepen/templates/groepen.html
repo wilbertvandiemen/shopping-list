@@ -27,6 +27,33 @@
               </a>
           </li>
         </ul>
+        <!-- Left links -->
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 col-6">
+          <li class="nav-item me-3 me-lg-0">
+            <a class="nav-link" href="{{ url_for('artikelen.toevoegen',d=url_param)}}"
+              title="Product toevoegen">
+              <i class="ri-menu-add-fill ri-xl"></i>
+            </a>
+          </li>
+          <li class="nav-item me-3 me-lg-0">
+            <a class="nav-link" href="{{ url_for('organisaties.organisaties',d=url_param)}}"
+              title="Groep toevoegen">
+              <i class="ri-list-check-2 ri-xl"></i>
+            </a>
+          </li>
+          <li class="nav-item me-3 me-lg-0">
+            <a class="nav-link" href="{{ url_for('groepen.groepen',d=url_param)}}"
+              title="Groep toevoegen / bewerken">
+              <i class="ri-shopping-basket-line ri-xl"></i>
+            </a>
+          </li>
+          <li class="nav-item me-3 me-lg-0">
+            <a class="nav-link" href="{{ url_for('gebruikers.logout')}}"
+              title="Logout">
+              <i class="ri-logout-box-r-line ri-xl"></i>
+            </a>
+          </li>
+        </ul>
       </div>
       <!-- Collapsible wrapper -->
     </div>
@@ -101,7 +128,7 @@ function save_order(){
        jQuery.ajax({
           type: 'POST',
           contentType: "application/json;",
-          url: main_url + 'save-groep',
+          url: '{{ url_for('groepen.save_groep') }}',
           data: JSON.stringify(post_data),
           dataType: "json"
       }).done(function(data) {
@@ -159,30 +186,6 @@ $(document).ready(function() {
 
     $('#select_artikel').on('change', function() {
       if (this.value != '') $( "#form-artikel" ).submit();
-    });
-
-    $('a.verwijderen').on('click', function() {
-
-        var element = $(this)
-        var id = $(this).attr('data-id')
-
-        // Send the data using post
-        var posting = $.post( main_url + 'delete', { id: id} );
-
-        // Put the results in a div
-        posting.done(function( data ) {
-            if (data == "3") {
-              window.location.href = main_url
-              return false
-            } else {
-              $('#row-' + id).remove()
-              $( ".artikel-nummer" ).each( function( index, element ){
-                  $( element ).html(index+1)
-              });
-             }
-        });
-
-        return false
     });
 
    $("#column-from, #column-to" ).sortable({

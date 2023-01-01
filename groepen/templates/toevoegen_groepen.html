@@ -21,6 +21,33 @@
               </a>
             </li>
           </ul>
+<!-- Left links -->
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 col-6">
+          <li class="nav-item me-3 me-lg-0">
+            <a class="nav-link" href="{{ url_for('artikelen.toevoegen',d=url_param)}}"
+              title="Product toevoegen">
+              <i class="ri-menu-add-fill ri-xl"></i>
+            </a>
+          </li>
+          <li class="nav-item me-3 me-lg-0">
+            <a class="nav-link" href="{{ url_for('organisaties.organisaties',d=url_param)}}"
+              title="Groep toevoegen">
+              <i class="ri-list-check-2 ri-xl"></i>
+            </a>
+          </li>
+          <li class="nav-item me-3 me-lg-0">
+            <a class="nav-link" href="{{ url_for('groepen.groepen',d=url_param)}}"
+              title="Groep toevoegen / bewerken">
+              <i class="ri-shopping-basket-line ri-xl"></i>
+            </a>
+          </li>
+          <li class="nav-item me-3 me-lg-0">
+            <a class="nav-link" href="{{ url_for('gebruikers.logout')}}"
+              title="Logout">
+              <i class="ri-logout-box-r-line ri-xl"></i>
+            </a>
+          </li>
+        </ul>
         </div>
       </nav>
     <div class="contentbar">
@@ -37,7 +64,7 @@
                             <div class="col-lg-10 col-xl-8">
                                 <div class="cart-container">
                                     <div class="cart-head">
-                                        <form method="POST" action="{{ url_for('groepen',d=url_param) }}">
+                                        <form method="POST" action="{{ url_for('groepen.groepen',d=url_param) }}">
                 <div class="form-group">
                   <input type="text" class="form-control" id="groep" name="groep" placeholder="Groep omschrijving">
                 </div>
@@ -46,24 +73,25 @@
               {% if groepen != [] %}
               <h4 class="product-heading">Reeds beschikbare groepen</h4>
                                         {% else %}
-                                        <h5 class="product-heading">U heeft nog geen groepen aangemaakt</h5>
+                                        <h5 class="product-heading">Je hebt nog geen groepen aangemaakt</h5>
                                         {% endif %}
               <div class="row group-list">
               {% for groep in groepen %}
 
-                <div id="row-{{ groep.id }}" class=" col-md-5 col-lg-5 col-xl-5"><span class="article_counter">{{ loop.index }}.</span><a
-                                class="verwijderen"
-                                data-id="{{
-                                groep.id
-                                }}" href="#"
-                                class="text-danger"><i
-                                  class="ri-delete-bin-3-line"></i></a><p class="description">{{
-                                groep.omschrijving
-                    }}<span class="update-groep"><a
-                                 href="{{ url_for('artikelen_in_groepen', id=groep.id, d=url_param) }}"
-                                title="Voeg artikelen toe bij {{groep.omschrijving}}"class="text-danger"><i
-                            class="ri-edit-line"></i></a></span></p></div>
+                <div id="row-{{ groep.id }}" class=" col-md-5 col-lg-5 col-xl-5">
+                    <span class="article_counter">{{ loop.index }}.</span>
+                    <i class="verwijderen ri-delete-bin-3-line" data-id="{{ groep.id }}"></i>
+                    <span class="update-groep">
+                        <a href="{{ url_for('groepen.artikelen_in_groepen', id=groep.id, d=url_param) }}"
+                               title="Voeg artikelen toe bij {{groep.omschrijving}}"
+                               class="text-danger">
+                                <i class="ri-edit-line"></i>
+                        </a>
+                        </span>
+                    <p class="description">{{ groep.omschrijving }}
 
+                    </p>
+                </div>
               {% endfor %}
               </div>
                                     </div>
@@ -91,13 +119,13 @@ $(document).ready(function() {
       }
     });
 
-     $('a.verwijderen').on('click', function() {
+     $('i.verwijderen').on('click', function() {
 
         var element = $(this)
         var id = $(this).attr('data-id')
 
         // Send the data using post
-        var posting = $.post( main_url + 'verwijder-groep', { id: id} );
+        var posting = $.post( '{{ url_for('groepen.verwijder_groep') }}', { id: id} );
 
         // Put the results in a div
         posting.done(function( data ) {
