@@ -107,6 +107,7 @@ def index():
         active_date = get_default_date()
 
     select_items_ = getSelect_items()
+    # print(select_items_)
 
     try:
         date = datetime.strptime(active_date, '%Y%m%d')
@@ -142,13 +143,17 @@ def index():
 
         selected = int(request.form['select_artikel'])
 
-        organisaties_selected = request.form['orgs_selected']
-        organisaties_selected_array = organisaties_selected.split(',')
+        organisaties_selected = request.form['orgs_selected'].strip()
+
+        if organisaties_selected != '':
+            organisaties_selected_array = organisaties_selected.split(',')
+
+        # print(organisaties_selected_array)
         if len(organisaties_selected_array):
             organisaties_selected_array = [int(item) for item in organisaties_selected_array]
 
         if organisaties_selected.strip() != '':
-            select_items_ = [item for item in select_items_  if item['organisatie'] in organisaties_selected_array]
+            select_items_ = [item for item in select_items_ if item['organisatie'] in organisaties_selected_array]
 
         # groep bijvoorbeeld `pasta`
         if selected < 0:
