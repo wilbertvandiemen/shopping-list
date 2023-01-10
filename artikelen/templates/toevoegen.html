@@ -108,7 +108,7 @@ $(document).ready(function() {
  $( ".product-list" ).sortable({
         stop: function( event, ui ) {
             var data = []
-            $('div.product-list a').each(function(index, value){
+            $('div.product-list a i.org-edit').each(function(index, value){
                 data.push({id:$(this).data('id')})
             });
             if (data.length > 0) {
