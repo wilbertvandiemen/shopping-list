@@ -137,6 +137,7 @@ def index():
 
     organisaties = Organisatie_record.query.filter_by(gebruiker=current_user.idi).order_by(Organisatie_record.omschrijving)
 
+    organisaties_selected = ''
     organisaties_selected_array = []
 
     if request.method == 'POST':
@@ -144,6 +145,7 @@ def index():
         selected = int(request.form['select_artikel'])
 
         organisaties_selected = request.form['orgs_selected'].strip()
+        # print(organisaties_selected)
 
         if organisaties_selected != '':
             organisaties_selected_array = organisaties_selected.split(',')
@@ -189,7 +191,7 @@ def index():
                     flash('Je kunt een artikel per dag slechts eenmaal toevoegen')
                     pretty_date = datetime.strftime(date, '%#d %B %Y')
 
-                    print(organisaties_selected_array)
+                    # print(organisaties_selected_array)
 
                     return render_template("index.html", datum=pretty_date,
                                            artikelen=select_items_,
@@ -198,7 +200,8 @@ def index():
                                            url_param=active_date,
                                            current_user=user,
                                            organisaties=organisaties,
-                                           organisaties_selected = organisaties_selected_array)
+                                           organisaties_selected = organisaties_selected_array,
+                                           hidden_input = organisaties_selected)
 
     reeds_gekozen = collect_reeds_gekozen(datum_id)
 
@@ -213,7 +216,9 @@ def index():
                                 datum_id=datum_id,
                                 current_user=user,
                                 organisaties=organisaties,
-                                organisaties_selected = organisaties_selected_array)
+                                organisaties_selected = organisaties_selected_array,
+                                hidden_input=organisaties_selected)
+
 
 
 # AJAX route

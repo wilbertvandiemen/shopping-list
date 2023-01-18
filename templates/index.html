@@ -102,7 +102,7 @@
               <div class="col-lg-10 col-xl-8">
                 <form id="form-artikel" action="{{ url_for('index') }}?d={{url_param}}" method="post">
                   <div class="form-group">
-                    <input type="hidden" id="orgs_selected" name="orgs_selected">
+                    <input type="hidden" id="orgs_selected" name="orgs_selected" value="{{ hidden_input }}">
                     <select id="select_artikel"
                       name="select_artikel"
                       class="form-control"
